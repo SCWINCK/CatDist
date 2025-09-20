@@ -1,0 +1,92 @@
+{% extends 'base.html' %}
+{% block title %}Carrinho{% endblock %}
+{% block content %}
+<h1 class="mb-4">Carrinho</h1>
+
+{% if not items %}
+  <div class="alert alert-info">Seu carrinho está vazio.</div>
+{% else %}
+  <div class="table-responsive">
+    <table class="table align-middle">
+      <thead>
+        <tr>
+          <th>Produto</th>
+          <th class="text-end">Preço</th>
+          <th class="text-end">Qtd</th>
+          <th class="text-end">Total</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for item in items %}
+          <tr>
+            <td class="d-flex align-items-center gap-2">
+              {% if item.product.image_path %}
+                <img src="{{ url_for('static', filename=item.product.image_path) }}" alt="{{ item.product.name }}" style="width:48px;height:48px;object-fit:cover;">
+              {% endif %}
+              <span>{{ item.product.name }}</span>
+            </td>
+            <td class="text-end">R$ {{ '%.2f'|format(item.price) }}</td>
+            <td class="text-end">{{ item.qty }}</td>
+            <td class="text-end">R$ {{ '%.2f'|format(item.line_total) }}</td>
+            <td class="text-end">
+              <form method="post" action="{{ url_for('catalog.cart_remove', product_id=item.product.id) }}">
+                <button class="btn btn-sm btn-outline-danger" type="submit">Remover</button>
+              </form>
+            </td>
+          </tr>
+        {% endfor %}
+      </tbody>
+      <tfoot>
+        <tr>
+          <th colspan="3" class="text-end">Total</th>
+          <th class="text-end">R$ {{ '%.2f'|format(total_value) }}</th>
+          <th></th>
+        </tr>
+        <tr>
+          <th colspan="3" class="text-end">Desconto ({{ (discount_rate*100)|int }}%)</th>
+          <th class="text-end text-success">- R$ {{ '%.2f'|format(discount_value) }}</th>
+          <th></th>
+        </tr>
+        <tr>
+          <th colspan="3" class="text-end">Frete</th>
+          <th class="text-end">R$ {{ '%.2f'|format(shipping_value) }}</th>
+          <th></th>
+        </tr>
+        <tr>
+          <th colspan="3" class="text-end">Total Geral</th>
+          <th class="text-end fw-bold">R$ {{ '%.2f'|format(grand_total) }}</th>
+          <th></th>
+        </tr>
+      </tfoot>
+    </table>
+  </div>
+{% endif %}
+
+<div class="d-flex flex-wrap gap-2 mb-3">
+  <a href="{{ url_for('catalog.index') }}" class="btn btn-outline-secondary">Continuar comprando</a>
+  <a href="{{ url_for('catalog.export_cart_xlsx') }}" class="btn btn-success">Exportar Excel</a>
+  <a href="{{ url_for('catalog.export_cart_pdf') }}" class="btn btn-danger">Exportar PDF</a>
+  <a href="{{ url_for('catalog.export_cart_csv') }}" class="btn btn-warning">Exportar CSV (ERP)</a>
+  <a href="{{ url_for('catalog.checkout_page') }}" class="btn btn-primary">Finalizar</a>
+ </div>
+
+<div class="row g-3">
+  <div class="col-12 col-md-6">
+    <form method="post" action="{{ url_for('catalog.apply_coupon') }}" class="d-flex gap-2">
+      <input type="text" name="coupon" class="form-control" placeholder="Cupom (ex: DESCONTO10)" value="{{ coupon_code or '' }}">
+      <button class="btn btn-outline-primary" type="submit">Aplicar</button>
+    </form>
+  </div>
+  <div class="col-12 col-md-6">
+    <form method="post" action="{{ url_for('catalog.set_shipping') }}" class="d-flex gap-2">
+      <input type="number" step="0.01" min="0" name="shipping" class="form-control" placeholder="Frete (R$)" value="{{ '%.2f'|format(shipping_value) }}">
+      <button class="btn btn-outline-primary" type="submit">Atualizar Frete</button>
+    </form>
+  </div>
+</div>
+
+<div class="mt-1"><small class="text-muted">Finalização exige login.</small></div>
+{% endblock %}
+
+

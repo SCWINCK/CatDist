@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+{% block title %}Minha Conta{% endblock %}
+{% block content %}
+<h1 class="mb-4">Minha Conta</h1>
+<form method="post" action="{{ url_for('catalog.account_submit') }}" class="row g-3" style="max-width:720px">
+  <div class="col-12 col-md-6">
+    <label class="form-label">Nome</label>
+    <input name="name" class="form-control" value="{{ user.name }}" required>
+  </div>
+  <div class="col-12 col-md-6">
+    <label class="form-label">E-mail</label>
+    <input name="email" class="form-control" value="{{ user.email }}" required>
+  </div>
+  <div class="col-12 col-md-6">
+    <label class="form-label">Senha (opcional)</label>
+    <input name="password" type="password" class="form-control" placeholder="(deixe em branco para manter)">
+  </div>
+  <div class="col-12 col-md-6">
+    <label class="form-label">Confirmar Senha</label>
+    <input name="password_confirm" type="password" class="form-control" placeholder="Repita a nova senha">
+  </div>
+  <div class="col-12 d-flex gap-2">
+    <button class="btn btn-primary" type="submit">Salvar</button>
+    <a class="btn btn-outline-secondary" href="{{ url_for('catalog.index') }}">Cancelar</a>
+  </div>
+</form>
+{% endblock %}
+
+

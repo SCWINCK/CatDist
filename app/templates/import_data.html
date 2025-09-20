@@ -1,0 +1,15 @@
+{% extends 'base.html' %}
+{% block title %}Importar {{ entity|title }}{% endblock %}
+{% block content %}
+<h1 class="mb-4">Importar {{ entity|title }}</h1>
+<p>Envie um arquivo <code>.xlsx</code> ou <code>.csv</code> com colunas: 
+  {% for c in help_cols %}<code>{{ c }}</code>{% if not loop.last %}, {% endif %}{% endfor %}.
+</p>
+<form method="post" enctype="multipart/form-data" action="{{ request.path }}" class="d-flex gap-2">
+  <input type="file" name="file" accept="{{ accept }}" class="form-control" required>
+  <button class="btn btn-primary" type="submit">Importar</button>
+</form>
+{% endblock %}
+
+
+

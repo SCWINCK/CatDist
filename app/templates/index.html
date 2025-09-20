@@ -1,0 +1,32 @@
+{% extends 'base.html' %}
+{% block title %}Fornecedores{% endblock %}
+{% block content %}
+<h1 class="mb-4">Fornecedores</h1>
+
+{% if not suppliers %}
+  <div class="alert alert-warning">Nenhum fornecedor encontrado. Importe a planilha <code>data/suppliers.xlsx</code>.</div>
+{% else %}
+  <div class="row row-cols-1 row-cols-sm-2 row-cols-md-6 g-3"> 
+    {% for s in suppliers %}
+      <div class="col">
+        <div class="card h-100 d-flex flex-column shadow-sm"> 
+          {% if s.logo_path %}
+            <div class="container-imagem card-body">
+              <img src="{{ url_for('static', filename=s.logo_path) }}" class="card-img-top" alt="{{ s.name }}">
+            </div>
+          {% endif %}
+          <div class="card-body d-flex flex-column">
+            <!--
+            <h5 class="card-title">{{ s.name }}</h5>
+            -->
+            <a href="{{ url_for('catalog.supplier_catalog', supplier_id=s.id) }}" class="mt-auto btn btn-primary">Ver produtos</a>
+          </div>
+        </div>
+      </div>
+    {% endfor %}
+  </div>
+{% endif %}
+{% endblock %}
+
+
+

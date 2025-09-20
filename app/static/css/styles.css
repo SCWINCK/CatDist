@@ -1,0 +1,17 @@
+.product-img {
+	width: 50%;
+	height: auto;
+	object-fit: cover;
+}
+.container-imagem {
+	display: flex; /* Ativa o layout flexível */
+	justify-content: center; /* Centraliza horizontalmente */
+	align-items: center; /* Centraliza verticalmente */
+	height: auto; /* Defina uma altura para que a centralização vertical funcione */
+}
+
+.container-imagem img {
+	max-width: 100%; /* Garante que a imagem se adapte ao container */
+	max-height: 100%;
+	height: auto; /* Mantém a proporção da imagem */
+}

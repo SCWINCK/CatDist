@@ -1,0 +1,136 @@
+{% extends 'base.html' %}
+{% block title %}Checkout{% endblock %}
+{% block content %}
+<h1 class="mb-4">Checkout</h1>
+<div class="alert alert-info">Olá, {{ user.name }} ({{ user.email }}). Esta é uma página de demonstração de checkout.</div>
+<form method="post" action="{{ url_for('catalog.checkout_submit') }}" class="row gy-3" style="max-width:520px">
+  <div class="col-12">
+    <label class="form-label">Endereço (exemplo)</label>
+    <input type="text" class="form-control" placeholder="Rua, número, bairro" required>
+  </div>
+  <div class="col-6">
+    <label class="form-label">Estado</label>
+    <select id="estado" name="estado" class="form-select" required>
+      <option value="" selected disabled>Selecionar UF</option>
+      <option value="AC">AC - Acre</option>
+      <option value="AL">AL - Alagoas</option>
+      <option value="AP">AP - Amapá</option>
+      <option value="AM">AM - Amazonas</option>
+      <option value="BA">BA - Bahia</option>
+      <option value="CE">CE - Ceará</option>
+      <option value="DF">DF - Distrito Federal</option>
+      <option value="ES">ES - Espírito Santo</option>
+      <option value="GO">GO - Goiás</option>
+      <option value="MA">MA - Maranhão</option>
+      <option value="MT">MT - Mato Grosso</option>
+      <option value="MS">MS - Mato Grosso do Sul</option>
+      <option value="MG">MG - Minas Gerais</option>
+      <option value="PA">PA - Pará</option>
+      <option value="PB">PB - Paraíba</option>
+      <option value="PR">PR - Paraná</option>
+      <option value="PE">PE - Pernambuco</option>
+      <option value="PI">PI - Piauí</option>
+      <option value="RJ">RJ - Rio de Janeiro</option>
+      <option value="RN">RN - Rio Grande do Norte</option>
+      <option value="RS">RS - Rio Grande do Sul</option>
+      <option value="RO">RO - Rondônia</option>
+      <option value="RR">RR - Roraima</option>
+      <option value="SC">SC - Santa Catarina</option>
+      <option value="SP">SP - São Paulo</option>
+      <option value="SE">SE - Sergipe</option>
+      <option value="TO">TO - Tocantins</option>
+    </select>
+  </div>
+  <div class="col-6">
+    <label class="form-label">Cidade</label>
+    <select id="cidade" name="cidade" class="form-select" required disabled>
+      <option value="" selected disabled>Selecione a UF primeiro</option>
+    </select>
+  </div>
+  <div class="col-6">
+    <label class="form-label">CEP</label>
+    <input id="cep" name="cep" type="text" class="form-control" required placeholder="_____-___" pattern="\\d{5}-\\d{3}" maxlength="9">
+    <div class="form-text">Formato: 99999-000</div>
+  </div>
+  <div class="col-12 d-flex gap-2">
+    <button class="btn btn-primary" type="submit">Finalizar Pedido</button>
+    <a href="{{ url_for('catalog.view_cart') }}" class="btn btn-outline-secondary">Voltar ao carrinho</a>
+  </div>
+</form>
+{% endblock %}
+
+{% block scripts %}
+<script>
+  (function() {
+    const cep = document.getElementById('cep');
+    if (!cep) return;
+    cep.addEventListener('input', function (e) {
+      // Mantém apenas dígitos
+      let v = (e.target.value || '').replace(/\D/g, '');
+      // Limita a 8 dígitos totais
+      v = v.substring(0, 8);
+      // Aplica máscara 99999-000 (5 dígitos + hífen + 3 dígitos)
+      if (v.length > 5) {
+        e.target.value = v.substring(0, 5) + '-' + v.substring(5);
+      } else {
+        e.target.value = v;
+      }
+    });
+  })();
+  // Carrega cidades do IBGE após escolha da UF
+  ;(function() {
+    const uf = document.getElementById('estado');
+    const cidade = document.getElementById('cidade');
+    const cepInput = document.getElementById('cep');
+    if (!uf || !cidade) return;
+    uf.addEventListener('change', async function() {
+      const sigla = uf.value;
+      cidade.innerHTML = '<option value="" selected disabled>Carregando...</option>';
+      cidade.disabled = true;
+      try {
+        const resp = await fetch('https://servicodados.ibge.gov.br/api/v1/localidades/estados/' + sigla + '/municipios');
+        const data = await resp.json();
+        const opts = ['<option value="" selected disabled>Selecionar cidade</option>'];
+        for (const m of data) {
+          // m.nome é o nome do município
+          opts.push('<option value="' + m.nome.replaceAll('"','') + '">' + m.nome + '</option>');
+        }
+        cidade.innerHTML = opts.join('');
+        cidade.disabled = false;
+      } catch (e) {
+        cidade.innerHTML = '<option value="" selected disabled>Falha ao carregar</option>';
+        cidade.disabled = true;
+      }
+    });
+
+    async function tentarAutoCep(siglaUF, nomeCidade) {
+      if (!cepInput) return;
+      try {
+        // Tentativa: buscar CEP do "Centro" da cidade
+        const q = encodeURIComponent('Centro');
+        const url = 'https://viacep.com.br/ws/' + encodeURIComponent(siglaUF) + '/' + encodeURIComponent(nomeCidade) + '/' + q + '/json/';
+        const r = await fetch(url);
+        const lista = await r.json();
+        if (Array.isArray(lista) && lista.length === 1 && lista[0] && lista[0].cep) {
+          let digits = String(lista[0].cep).replace(/\D/g, '');
+          if (digits.length === 8) {
+            cepInput.value = digits.substring(0,5) + '-' + digits.substring(5);
+          }
+        }
+      } catch (e) {
+        // Silencia falhas; não é crítico
+      }
+    }
+
+    cidade.addEventListener('change', function() {
+      const sigla = uf.value;
+      const nomeCid = cidade.value;
+      if (sigla && nomeCid) {
+        tentarAutoCep(sigla, nomeCid);
+      }
+    });
+  })();
+  </script>
+{% endblock %}
+
+

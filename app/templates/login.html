@@ -1,0 +1,22 @@
+{% extends 'base.html' %}
+{% block title %}Login{% endblock %}
+{% block content %}
+<h1 class="mb-4">Entrar</h1>
+<form method="post" action="{{ url_for('catalog.login_submit') }}" class="row gy-3" style="max-width:420px">
+  <div class="col-12">
+    <label class="form-label">E-mail</label>
+    <input type="email" class="form-control" name="email" required>
+  </div>
+  <div class="col-12">
+    <label class="form-label">Senha</label>
+    <input type="password" class="form-control" name="password" required>
+  </div>
+  <div class="col-12 d-flex gap-2">
+    <button class="btn btn-primary" type="submit">Entrar</button>
+    <a class="btn btn-outline-secondary" href="{{ url_for('catalog.index') }}">Cancelar</a>
+  </div>
+</form>
+{% endblock %}
+
+
+

@@ -1,0 +1,13 @@
+{% extends 'base.html' %}
+{% block title %}Importar Clientes{% endblock %}
+{% block content %}
+<h1 class="mb-4">Importar Clientes</h1>
+<p>Envie um arquivo <code>.xlsx</code> ou <code>.csv</code> com colunas: <code>id, name, email, password, phone, address, state, city, cep</code>.</p>
+<form method="post" action="{{ url_for('catalog.clients_import_submit') }}" enctype="multipart/form-data" class="d-flex gap-2">
+  <input type="file" name="file" accept=".xlsx,.csv" class="form-control" required>
+  <button class="btn btn-primary" type="submit">Importar</button>
+</form>
+{% endblock %}
+
+
+
